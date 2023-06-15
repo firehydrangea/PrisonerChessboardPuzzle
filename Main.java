@@ -1,5 +1,6 @@
 import java.lang.Math;
 import java.util.Arrays;
+import java.util.ArrayList;
 //6/15/23
 //trying to think through or solve the prisoner chessboard puzzle that 3blue1brown talks about
 //I watched far enough into the video to get the idea of enocding the key's location in the array of heads and tails
@@ -7,6 +8,8 @@ import java.util.Arrays;
 
 class Main {
   public static void main(String[] args) {
+    /**/
+    // this board is a random collection of 1s and 0s to represent heads and tails
     int[][] board = { { 0, 1, 0, 1, 0, 1, 0, 0 },
         { 1, 0, 0, 0, 1, 1, 1, 0 },
         { 0, 1, 1, 0, 1, 0, 0, 0 },
@@ -15,65 +18,81 @@ class Main {
         { 1, 0, 1, 1, 0, 1, 1, 0 },
         { 0, 0, 0, 0, 1, 0, 0, 1 },
         { 0, 1, 0, 1, 1, 1, 0, 1 } };
-    // this board is a random collection of 1s and 0s to represent heads and tails
-    int[] rowtotals = new int[9]; // 0-7 will be totals of individual rows; 8 is overall total
-    int[] coltotals = new int[9]; // 0-7 will be totals of individual cols; 8 is overall total
-    int diff = 0;
-    // diff will be the difference between the sum of the rows and the sum of the
-    // cols
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        if (board[i][j] == 1) {
-          rowtotals[i] = rowtotals[i] + (int) Math.pow(2, 7 - j);
-          rowtotals[8] = rowtotals[8] + (int) Math.pow(2, 7 - j);
-          coltotals[j] = coltotals[j] + (int) Math.pow(2, 7 - i);
-          coltotals[8] = coltotals[8] + (int) Math.pow(2, 7 - i);
-        }
-      }
-    }
-    System.out.println("rows: " + Arrays.toString(rowtotals));
-    System.out.println("Cols: " + Arrays.toString(coltotals));
-    diff = rowtotals[8] - coltotals[8];
-    System.out.println("Row total minus column total: " + diff);
-    System.out.println("Row total minus column total MOD 64: " + Math.floorMod(diff, 64));
-    int[][] diffs = new int[8][8];
-    // diffs[i][j] will house the diff mod 64 if you toggle board[i][j]
-    for (int i = 0; i < 8; i++) {
-      for (int j = 0; j < 8; j++) {
-        board[i][j] = toggle(board[i][j]);
-        diffs[i][j] = diff - calcDiff(board);
-        // diffs[i][j] = calcDiff(board);
-        // diffs[i][j] = Math.floorMod(calcDiff(board), 64);
-        // diffs[i][j] = calcDiff(board);
-        // diffs[i][j] = (diffs[i][j]/64 + Math.floorMod(diffs[i][j], 64));
+    /**/
 
+    /*
+     * //this board is symmetric, which demonstrates the weakness of my strategy:
+     * int[][] board = { { 0, 1, 0, 1, 0, 1, 0, 1 },
+     * { 1, 0, 1, 0, 1, 0, 1, 0 },
+     * { 0, 1, 0, 1, 0, 1, 0, 1 },
+     * { 1, 0, 1, 0, 1, 0, 1, 0 },
+     * { 0, 1, 0, 1, 0, 1, 0, 1 },
+     * { 1, 0, 1, 0, 1, 0, 1, 0 },
+     * { 0, 1, 0, 1, 0, 1, 0, 1 },
+     * { 1, 0, 1, 0, 1, 0, 1, 0 } };
+     */
+    /*
+     * // this board is all 1's
+     * int[][] board = { { 1, 1, 1, 1, 1, 1, 1, 1 },
+     * { 1, 1, 1, 1, 1, 1, 1, 1 },
+     * { 1, 1, 1, 1, 1, 1, 1, 1 },
+     * { 1, 1, 1, 1, 1, 1, 1, 1 },
+     * { 1, 1, 1, 1, 1, 1, 1, 1 },
+     * { 1, 1, 1, 1, 1, 1, 1, 1 },
+     * { 1, 1, 1, 1, 1, 1, 1, 1 },
+     * { 1, 1, 1, 1, 1, 1, 1, 1 } };
+     */
+    /*
+     * // this board is all 0's
+     * int[][] board = { {0, 0, 0, 0, 0, 0, 0, 0},
+     * {0, 0, 0, 0, 0, 0, 0, 0},
+     * {0, 0, 0, 0, 0, 0, 0, 0},
+     * {0, 0, 0, 0, 0, 0, 0, 0},
+     * {0, 0, 0, 0, 0, 0, 0, 0},
+     * {0, 0, 0, 0, 0, 0, 0, 0},
+     * {0, 0, 0, 0, 0, 0, 0, 0},
+     * {0, 0, 0, 0, 0, 0, 0, 0}};
+     */
+    int code = calcDiff(board);
+    System.out.println("The untouched board encodes: " + code);
+    // the following flips one of the coins, calculates the new code, stores that in
+    // diffs, and flips that coin back over. It tests each possible move prisoner 1
+    // can make and stores the result of that move in the corresponding position in
+    // diffs.
+    int[][] diffs = new int[8][8];
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        board[i][j] = toggle(board[i][j]);
+        diffs[i][j] = calcDiff(board);
         board[i][j] = toggle(board[i][j]);
       }
     }
-    System.out.println("total for each possible flip: ");
+    System.out.println("code resulting from each possible flip: ");
     for (int[] row : diffs) {
       System.out.println(Arrays.toString(row));
     }
+    System.out.println("Here are all the codes that can't be reached: ");
+    ArrayList<Integer> missingNums = check(diffs);
+    System.out.println(missingNums.toString());
+    double odds = (64 - missingNums.size()) / 64.0;
+    System.out.println("The odds of winning for this specific board: " + odds);
 
   }
 
+  // this function is called calcDiff but what it really does is encode the board.
   static int calcDiff(int[][] board) {
     int diff = 0;
     for (int i = 0; i < 8; i++) {
       for (int j = 0; j < 8; j++) {
         if (board[i][j] == 1) {
-          diff += (int) Math.pow(2, 7 - j);
-          diff -= (int) Math.pow(2, 7 - i);
-          // rowtotals[i]= rowtotals[i] + (int)Math.pow(2, 7-j);
-          // rowtotals[8] = rowtotals[8] + (int)Math.pow(2, 7-j);
-          // coltotals[j] = coltotals[j] + (int)Math.pow(2, 7-i);
-          // coltotals[8] = coltotals[8] + (int)Math.pow(2, 7-i);
+          diff += (8 * (i)) + j;
         }
       }
     }
-    return diff;
+    return Math.floorMod(diff, 64);
   }
 
+  // toggle takes a coin and flips it over.
   static int toggle(int i) {
     if (i == 0)
       return 1;
@@ -81,9 +100,69 @@ class Main {
       return 0;
     return i;
   }
+
+  // check will check a 2d array of all possible moves and see if every value from
+  // 0 to 63 is present. a list of values that don't appear is returned.
+  static ArrayList<Integer> check(int[][] board) {
+    ArrayList<Integer> list = new ArrayList();
+    for (int i = 0; i < 64; i++) {
+      list.add(i);
+    }
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        if (list.contains(board[i][j])) {
+          list.remove(Integer.valueOf(board[i][j]));
+        }
+      }
+    }
+    return list;
+  }
 }
 /*
  * Conclusions:
+ * the challenge is to
+ * a) find a way to encode the sequence of 64 coins into a single number between
+ * 0 and 63, so that prisoner 2 can look at the board and calculate the location
+ * of the key
+ * b) find a way of encoding that makes it possible for prisoner 1 to encode the
+ * correct value by only flipping over one coin, no matter the original board or
+ * location of the key.
+ * my first encoding strategy:
+ * 1. turn each row and each column into an 8-bit binary number
+ * 2. sum the 8 row numbers to create the row total
+ * 3. sum the 8 column numbers to create the column total
+ * 4. take the difference of the row total and the column total
+ * 5. mod that number by 64
+ * The problem with this method is that prisoner 1 couldn't encode for certain
+ * values between 0 and 63. if the original, untouched board's code was 5, and
+ * the key was in the 10th space, prisoner 1 would be unable to modify the board
+ * to encode to 10, because there is no coin that can be flipped that will
+ * modify the code by 5.
+ * the reason it doesn't work is because it is symmetrical. for example,
+ * flipping any of the 8 coins along the diagonal would make the code stay the
+ * same, and that means there are 7 less codes that can be reached, just along
+ * the diagonal.
+ * Here is my second strategy:
+ * 1. if there is a 1 in a cell, add that cell's order to the total. so if there
+ * was a 1 in the fifth cell, a 5 gets added to the total.
+ * 2. mod by 64.
+ * this method works better. For my randomized board, if the key was placed
+ * randomly, there'd be an 80 percent chance that the board could be encoded
+ * correctly with only the one coin flip.
+ * However, the main problem can be seen in the randomized board in location
+ * [1][0] and [7][0].
+ * the original board encodes to 61, so if the key was in cell 5, you would want
+ * to either increase the total by 8 by switching index 8 from a 0 to a 1, or
+ * decrease the total by 56 by switching index 56 from a 1 to a 0. However,
+ * index 5 already has a 1, and index 56 already has a 0. so there is no way to
+ * create a board that will create the code 5. Correspondingly, if the key was
+ * in the 53rd cell, the first prisoner has two ways to convey that: flipping 8
+ * or 56.
+ *******************************************************
+ * 
+ * 
+ * 
+ * Here are my less useful ramblings as I worked through this problem:
  * if you encode each row as an 8-bit binary number, and each column as an 8-bit
  * binary number, sum the 8 row numbers into a rows total and the 8 column
  * numbers into a columns total, and then do the difference between the row
@@ -121,6 +200,17 @@ class Main {
  * etc until index 0 adds 128.
  * but i'm going to change the columns so index 7 is 2, index 6 is 4, etc, until
  * index 0 is 256.
- * but i'm going to publish to github before I change this.
- * 
+ * but i'm going to publish to github before I change this. (omg I totally
+ * forget how I did that before! but replit has version control in and of
+ * itself.)
+ * shifting the columns by 1 bit just moves the diagonal with all the
+ * repetitions. let me try doing i instead of 7 - i
+ * missing: 2-6, 10, 17, 20, 21, 23-26, 28, 32, 33-42, 44, 48, 49, 51-53, 55-63
+ * I tried summing 8(i) + j, but the issue there is you are constrained by only
+ * flipping one coin. if you would want to increase the code by 19, you would
+ * want to flip the 19th coin, but if it was a 1 to begin with, then the total
+ * would decrease by 19. you could instead flip the 45th coin, because with mod
+ * 64 they would come out the same, but only if the 45th coin was flipped where
+ * you wanted it.
+ * I may be stumped. I might look at the video.
  */
