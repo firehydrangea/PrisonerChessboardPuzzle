@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 //6/15/23
 //trying to think through or solve the prisoner chessboard puzzle that 3blue1brown talks about
+//https://youtu.be/wTJI_WuZSwE
 //I watched far enough into the video to get the idea of enocding the key's location in the array of heads and tails
 //I didn't solve it, but I have some conclusions at the end of this program
 
